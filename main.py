@@ -26,7 +26,7 @@ def inference(input_text):
 model_id = "NexaAIDev/Octopus-v2"
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 model = GemmaForCausalLM.from_pretrained(
-    model_id, torch_dtype=torch.float16, device_map="auto"
+    model_id, torch_dtype=torch.bfloat16, device_map="auto"
 )
 
 input_text = "Take a selfie for me with front camera"
