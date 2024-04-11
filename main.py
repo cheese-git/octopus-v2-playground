@@ -25,9 +25,9 @@ def inference(input_text):
             end_time = time.time()
             print(text)
             print("latency:", end_time - start_time, " s")
-            break
-        
-    end_time = time.time()
+    
+    print('\nFianl text:\n')
+    print(text)        
 
 
 model_id = "NexaAIDev/Octopus-v2"
@@ -37,7 +37,7 @@ model = GemmaForCausalLM.from_pretrained(
 )
 streamer = TextIteratorStreamer(tokenizer, skip_prompt=True)
 
-input_text = "Take a selfie for me with front camera"
+input_text = "Write an email to Jhon, tell him the job is done."
 nexa_query = f"Below is the query from the users, please call the correct function and generate the parameters to call the function.\n\nQuery: {input_text} \n\nResponse:"
 
 inference(nexa_query)
