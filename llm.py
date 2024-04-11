@@ -1,6 +1,7 @@
 import os
-
 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+os.environ["HUGGINGFACE_HUB_CACHE"] = ".huggingface_cache"
+
 from transformers import (
     AutoTokenizer,
     GemmaForCausalLM,
