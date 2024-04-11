@@ -1,11 +1,9 @@
 import os
 
 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
-from threading import Thread
 from transformers import (
     AutoTokenizer,
     GemmaForCausalLM,
-    TextIteratorStreamer,
     StoppingCriteria,
     StoppingCriteriaList
 )
@@ -27,27 +25,14 @@ def inference(input_text):
     start_time = time.time()
     nexa_query = f"Below is the query from the users, please call the correct function and generate the parameters to call the function.\n\nQuery: {input_text} \n\nResponse:"
     input_ids = tokenizer(nexa_query, return_tensors="pt").to(model.device)
-    streamer = TextIteratorStreamer(tokenizer, skip_prompt=True)
-    thread = Thread(
-        target=model.generate,
-        kwargs={
-            "input_ids": input_ids["input_ids"],
-            "max_length": 1024,
-            "do_sample": False,
-            "streamer": streamer,
-            "output_scores": True,
-            "stopping_criteria": StoppingCriteriaList([MyStoppingCriteria()]),
-        },
-    )
-    thread.start()
+    input_length = input_ids["input_ids"].shape[1]
+    output = model.generate(input_ids["input_ids"], max_length=1024, do_sample=False, stopping_criteria=StoppingCriteriaList([MyStoppingCriteria()]))
+    generated_sequence = output[:, input_length:].tolist()
 
-    text = ""
-
-    for new_text in streamer:
-        text += new_text
-        if "<nexa_end>" in new_text:
-            end_time = time.time()
-            return {"token": text, "latency": end_time - start_time}
+    return {
+      "output": tokenizer.decode(generated_sequence[0]),
+      "latency": time.time() - start_time
+    }
 
 
 if __name__ == "__main__":
